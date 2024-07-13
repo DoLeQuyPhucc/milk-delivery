@@ -20,7 +20,7 @@ interface PackageDetail {
   _id: string;
   products: { product: Product; quantity: number }[];
   totalAmount: number;
-  totalPrice: number;
+  totalPriceDiscount: number;
 }
 
 interface PackageDetailState {

@@ -67,7 +67,7 @@ const OrderList = ({ status }: { status: string }) => {
       />
       <View style={styles.totalContainer}>
         <Text style={styles.totalLabel}>Total Price:</Text>
-        <Text style={styles.totalPrice}>{item.package.totalPrice} VND</Text>
+        <Text style={styles.totalPriceDiscount}>{item.package.totalPriceDiscount} VND</Text>
       </View>
       <View style={styles.deliveryInfo}>
         <Text style={styles.deliveryLabel}>Shipments Delivered:</Text>
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  totalPrice: {
+  totalPriceDiscount: {
     fontSize: 16,
     fontWeight: 'bold',
   },

@@ -17,7 +17,7 @@ interface Product {
 interface Package {
   _id: string;
   products: { product: Product; quantity: number }[];
-  totalPrice: number;
+  totalPriceDiscount: number;
 }
 
 interface Tracking {

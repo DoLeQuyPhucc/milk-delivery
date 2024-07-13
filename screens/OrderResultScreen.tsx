@@ -22,7 +22,7 @@ interface Package {
     quantity: number;
   }[];
   totalAmount: number;
-  totalPrice: number;
+  totalPriceDiscount: number;
 }
 
 const OrderResultScreen: React.FC = () => {
@@ -65,7 +65,7 @@ const OrderResultScreen: React.FC = () => {
       <Text style={styles.brandName}>{item.products[0].product.brandID.name}</Text>
       <Text style={styles.productDescription}>{item.products[0].product.description}</Text>
       <Text style={styles.packagePrice}>
-        {item.totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+        {item.totalPriceDiscount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
       </Text>
     </View>
   );

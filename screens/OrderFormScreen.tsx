@@ -38,7 +38,7 @@ const OrderFormScreen: React.FC = () => {
   const [startDeliveryDate, setStartDeliveryDate] = useState<string>('');
   const [snackbarVisible, setSnackbarVisible] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-  const [totalPrice, setTotalPrice] = useState<number | null>(null);
+  const [totalPriceDiscount, settotalPriceDiscount] = useState<number | null>(null);
   const [addresses, setAddresses] = useState<any[]>([]); // State to store addresses
   const [isBusy, setIsBusy] = useState<boolean>(false); // State to track if the form is busy
 
@@ -71,12 +71,12 @@ const OrderFormScreen: React.FC = () => {
   useEffect(() => {
     if (packageDetail) {
       if (numberOfShipment.trim() === '' || isNaN(parseInt(numberOfShipment))) {
-        // Nếu số lần giao hàng không hợp lệ, set totalPrice về giá trị ban đầu từ packageDetail
-        setTotalPrice(packageDetail.totalPrice);
+        // Nếu số lần giao hàng không hợp lệ, set totalPriceDiscount về giá trị ban đầu từ packageDetail
+        settotalPriceDiscount(packageDetail.totalPriceDiscount);
       } else {
-        // Tính lại totalPrice dựa trên packageDetail.totalPrice và numberOfShipment
-        const newTotalPrice = packageDetail.totalPrice * parseInt(numberOfShipment);
-        setTotalPrice(newTotalPrice);
+        // Tính lại totalPriceDiscount dựa trên packageDetail.totalPriceDiscount và numberOfShipment
+        const newtotalPriceDiscount = packageDetail.totalPriceDiscount * parseInt(numberOfShipment);
+        settotalPriceDiscount(newtotalPriceDiscount);
       }
     }
   }, [packageDetail, numberOfShipment]);
@@ -191,7 +191,7 @@ const OrderFormScreen: React.FC = () => {
   
     try {
       if (paymentMethod === 'VNPay') {
-        await handleVNPayPayment(orderData, packageDetail.totalPrice * numShipment);
+        await handleVNPayPayment(orderData, packageDetail.totalPriceDiscount * numShipment);
       } else {
         const response = await callApi('POST', '/api/orders', orderData);
         Alert.alert('Success', 'Order created successfully!');
@@ -340,7 +340,7 @@ const OrderFormScreen: React.FC = () => {
           <View style={styles.section}>
             <Title style={styles.title}>Total</Title>
             <Paragraph style={{ color: 'red', fontWeight: 'bold' }}>
-              {totalPrice !== null ? formatCurrency(totalPrice) : ''}
+              {totalPriceDiscount !== null ? formatCurrency(totalPriceDiscount) : ''}
             </Paragraph>
           </View>
 

@@ -15,7 +15,7 @@ interface CartState {
   userID: string;
   items: CartItem[];
   totalQuantity: number;
-  totalPrice: number;
+  totalPriceDiscount: number;
 }
 
 const getInitialCartState = (userID: string): CartState => {
@@ -27,7 +27,7 @@ const getInitialCartState = (userID: string): CartState => {
     userID,
     items: [],
     totalQuantity: 0,
-    totalPrice: 0,
+    totalPriceDiscount: 0,
   };
 };
 
@@ -41,7 +41,7 @@ const initialState: CartState = {
   userID: "",
   items: [],
   totalQuantity: 0,
-  totalPrice: 0,
+  totalPriceDiscount: 0,
 };
 
 const cartSlice = createSlice({
@@ -53,7 +53,7 @@ const cartSlice = createSlice({
       const initialState = getInitialCartState(state.userID);
       state.items = initialState.items;
       state.totalQuantity = initialState.totalQuantity;
-      state.totalPrice = initialState.totalPrice;
+      state.totalPriceDiscount = initialState.totalPriceDiscount;
     },
     addToCart(state, action: PayloadAction<CartItem>) {
       const newItem = action.payload;
@@ -64,7 +64,7 @@ const cartSlice = createSlice({
         state.items.push({ ...newItem, quantity: newItem.quantity });
       }
       state.totalQuantity += newItem.quantity;
-      state.totalPrice = state.items.reduce(
+      state.totalPriceDiscount = state.items.reduce(
         (total, item) => total + item.price * item.quantity,
         0
       );
@@ -80,7 +80,7 @@ const cartSlice = createSlice({
       if (existingItem) {
         state.items = state.items.filter((item) => item.id !== id);
         state.totalQuantity -= existingItem.quantity;
-        state.totalPrice = state.items.reduce(
+        state.totalPriceDiscount = state.items.reduce(
           (total, item) => total + item.price * item.quantity,
           0
         );
@@ -95,7 +95,7 @@ const cartSlice = createSlice({
       const existingItem = state.items.find((item) => item.id === id);
       if (existingItem) {
         state.totalQuantity += quantity - existingItem.quantity;
-        state.totalPrice = state.items.reduce(
+        state.totalPriceDiscount = state.items.reduce(
           (total, item) => total + item.price * item.quantity,
           0
         );
@@ -106,7 +106,7 @@ const cartSlice = createSlice({
     clearCart(state) {
       state.items = [];
       state.totalQuantity = 0;
-      state.totalPrice = 0;
+      state.totalPriceDiscount = 0;
       Cookies.remove(`cart_${state.userID}`);
     },
   },

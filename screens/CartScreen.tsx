@@ -85,7 +85,7 @@ const CartScreen = () => {
     }, 1000);
   };
 
-  const calculateTotalPrice = () => {
+  const calculatetotalPriceDiscount = () => {
     return cartItems
       .filter((item) => selectedItems.includes(item.id))
       .reduce((total, item) => total + item.price * item.quantity, 0);
@@ -159,7 +159,7 @@ const CartScreen = () => {
             </View>
           ) : (
             <View style={styles.orderContainer}>
-              <Text style={styles.totalPriceText}>Total: {calculateTotalPrice()}đ</Text>
+              <Text style={styles.totalPriceDiscountText}>Total: {calculatetotalPriceDiscount()}đ</Text>
               <TouchableOpacity style={styles.orderButton} onPress={() => navigation.navigate('OrderForm')}>
                 <Text style={styles.orderButtonText}>Purchase ({selectedItems.length})</Text>
               </TouchableOpacity>
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  totalPriceText: {
+  totalPriceDiscountText: {
     marginRight: 10,
     fontSize: 12,
     fontWeight: 'bold',

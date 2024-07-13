@@ -36,7 +36,7 @@ const SearchResultsScreen: React.FC<{ route: any }> = ({ route }) => {
               <Image source={{ uri: item.products[0].product.productImage }} style={styles.productImage} />
               <Text style={styles.packageName}>{item.products[0].product.name}</Text>
               <Text style={styles.packagePrice}>
-                {item.totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                {item.totalPriceDiscount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
               </Text>
             </View>
           </TouchableOpacity>

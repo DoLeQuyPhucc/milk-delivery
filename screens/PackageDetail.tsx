@@ -50,7 +50,7 @@ const PackageDetail: React.FC = () => {
   //     const cartItem: CartItem = {
   //       id: packageDetail._id,
   //       name: packageDetail.products[0]?.product.name || 'Unknown',
-  //       price: packageDetail.totalPrice,
+  //       price: packageDetail.totalPriceDiscount,
   //       quantity: quantity,
   //       productImage: packageDetail.products[0]?.product.productImage || '',
   //     };
@@ -97,8 +97,8 @@ const PackageDetail: React.FC = () => {
           <>
             <Image source={{ uri: packageDetail.products[0]?.product.productImage }} style={styles.image} />
             <Text style={styles.packageName}>{packageDetail.products[0]?.product.name || 'Package'}</Text>
-            <Text style={styles.totalPrice}>
-              {packageDetail.totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+            <Text style={styles.totalPriceDiscount}>
+              {packageDetail.totalPriceDiscount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
             </Text>
             <Text style={styles.productCount}>Quantity Product: {packageDetail.products.length}</Text>
             <Divider style={styles.divider} />
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
-  totalPrice: {
+  totalPriceDiscount: {
     fontSize: 20,
     color: '#FF6F61',
     marginBottom: 10,

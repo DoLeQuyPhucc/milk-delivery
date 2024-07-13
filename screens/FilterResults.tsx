@@ -16,7 +16,7 @@ interface PackageItem {
       name: string;
     };
   }[];
-  totalPrice: number;
+  totalPriceDiscount: number;
 }
 
 type RootStackParamList = {
@@ -81,7 +81,7 @@ const FilterResults: React.FC = () => {
         {item.products[0].product.name}
       </Text>
       <Text style={styles.packagePrice}>
-        {item.totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+        {item.totalPriceDiscount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
       </Text>
     </TouchableOpacity>
   );
