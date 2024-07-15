@@ -73,7 +73,6 @@ export const fetchOrders = createAsyncThunk(
   async (userId: string) => {
     try {
       const data = await callApi("GET", `/api/orders/user/${userId}`);
-      console.log("API response data:", data); // Log dữ liệu trả về từ API
       return data as Order[];
     } catch (error) {
       console.log("API error:", error); // Log lỗi trả về từ API

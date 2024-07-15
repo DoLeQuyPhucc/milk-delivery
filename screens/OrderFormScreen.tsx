@@ -145,7 +145,7 @@ const OrderFormScreen: React.FC = () => {
       return;
     }
   
-    if (!fullName || !phone || !address || !city || !country || !numberOfShipment || !startDeliveryDate) {
+    if (!fullName || !phone || !address || !city || !country || !startDeliveryDate) {
       setSnackbarMessage('Please fill in all fields.');
       setSnackbarVisible(true);
       return;
@@ -156,12 +156,6 @@ const OrderFormScreen: React.FC = () => {
   
     if (!deliveryDayNums.includes(deliveryDay)) {
       Alert.alert('Error', 'Selected delivery date does not match the delivery days.');
-      return;
-    }
-  
-    const numShipment = parseInt(numberOfShipment);
-    if (isNaN(numShipment)) {
-      Alert.alert('Error', 'Number of Shipments must be a valid number.');
       return;
     }
   
@@ -182,16 +176,16 @@ const OrderFormScreen: React.FC = () => {
       isPaid: paymentMethod === 'VNPay',
       paidAt: formattedPaidAt,
       deliveredAt: formattedDeliveredAt,
-      numberOfShipment: numShipment,
+      numberOfShipment: packageDetail.numberOfShipment,
     };
   
     console.log('Order data:', orderData);
   
-    setIsBusy(true); // Set the form to busy state
+    setIsBusy(true);
   
     try {
       if (paymentMethod === 'VNPay') {
-        await handleVNPayPayment(orderData, packageDetail.totalPriceDiscount * numShipment);
+        await handleVNPayPayment(orderData, packageDetail.totalPriceDiscount);
       } else {
         const response = await callApi('POST', '/api/orders', orderData);
         Alert.alert('Success', 'Order created successfully!');
@@ -199,7 +193,7 @@ const OrderFormScreen: React.FC = () => {
       }
     } catch (error: any) {
       console.log("Error: ", error);
-      
+  
       if (error.response) {
         console.log("Server responded with:", error.response.data);
       } else if (error.request) {
@@ -220,27 +214,19 @@ const OrderFormScreen: React.FC = () => {
         ...orderData,
         amount,
       });
-
-      console.log("Order Data VNPay: ", orderData);
-      
+  
+      console.log("Order Data Zalopay: ", orderData);
   
       const vnpUrl = response.vnpUrl;
       if (vnpUrl) {
         await WebBrowser.openBrowserAsync(vnpUrl);
-  
-        const returnResponse = await callApi('GET', '/api/payments/vnpay_return');
-        if (returnResponse) {
-          navigation.navigate('OrderResult', { vnpayData: JSON.stringify(returnResponse) });
-        } else {
-          Alert.alert('Error', 'Failed to get VNPay return data. Please try again.');
-        }
       } else {
         Alert.alert('Error', 'Failed to initiate VNPay payment. Please try again.');
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to initiate VNPay payment. Please try again.');
     }
-  };
+  };  
 
   return (
     <View style={styles.container}>
@@ -304,14 +290,6 @@ const OrderFormScreen: React.FC = () => {
 
           <View style={styles.section}>
             <Title style={styles.title}>Shipment Details</Title>
-            <TextInput
-              label="Number of deliveries"
-              value={numberOfShipment}
-              onChangeText={handleNumberOfShipmentChange}
-              style={styles.input}
-              mode='outlined'
-              keyboardType="number-pad"
-            />
             <TextInput
               label="Delivery start date"
               value={startDeliveryDate}

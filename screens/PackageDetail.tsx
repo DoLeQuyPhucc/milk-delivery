@@ -1,28 +1,28 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView, Animated, Modal } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPackageById } from '@/redux/slices/packageDetailSlice';
 import { RootState, AppDispatch } from '@/redux/store/store';
-import { CartItem, addToCart, setUserID } from '@/redux/slices/cartSlice';
+import { setUserID } from '@/redux/slices/cartSlice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Divider, Header } from 'react-native-elements';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import withRefreshControl from '@/components/withRefreshControl';
 import { useNavigation } from '@/hooks/useNavigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Animatable from 'react-native-animatable';
 
 const PackageDetail: React.FC = () => {
   const route = useRoute();
   const { id } = route.params as { id: string };
   const dispatch = useDispatch<AppDispatch>();
   const { package: packageDetail, status, error } = useSelector((state: RootState) => state.packageDetail);
-  const user = useSelector((state: RootState) => state.user);
-  const toastRef = useRef<any>(null);
-
   const navigation = useNavigation();
-
-  const [quantity, setQuantity] = useState(0);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   useEffect(() => {
     const setUser = async () => {
@@ -35,36 +35,31 @@ const PackageDetail: React.FC = () => {
     dispatch(fetchPackageById(id));
   }, [dispatch, id]);
 
-  // const handleIncrease = () => {
-  //   setQuantity((prev) => prev + 1);
-  // };
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
 
-  // const handleDecrease = () => {
-  //   if (quantity > 0) {
-  //     setQuantity((prev) => prev - 1);
-  //   }
-  // };
+  const handleScroll = () => {
+    setIsScrolling(true);
+    const scrollTimeout = setTimeout(() => {
+      setIsScrolling(false);
+    }, 100);
+    clearTimeout(scrollTimeout);
+  }
 
-  // const handleAddToCart = () => {
-  //   if (packageDetail) {
-  //     const cartItem: CartItem = {
-  //       id: packageDetail._id,
-  //       name: packageDetail.products[0]?.product.name || 'Unknown',
-  //       price: packageDetail.totalPriceDiscount,
-  //       quantity: quantity,
-  //       productImage: packageDetail.products[0]?.product.productImage || '',
-  //     };
+  const handleProductPress = (product: any) => {
+    setSelectedProduct(product);
+    setModalVisible(true);
+  };
 
-  //     dispatch(addToCart(cartItem));
-  //     if (toastRef.current) {
-  //       toastRef.current.show({
-  //         type: 'success',
-  //         text1: 'Success',
-  //         text2: 'Item added to cart successfully!',
-  //       });
-  //     }
-  //   }
-  // };
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedProduct(null);
+  };
 
   if (status === 'loading') {
     return (
@@ -80,7 +75,11 @@ const PackageDetail: React.FC = () => {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.contentContainer}>
+      <Animated.ScrollView 
+        contentContainerStyle={styles.contentContainer} 
+        onScrollBeginDrag={handleScroll}
+        onScrollEndDrag={handleScroll}
+      >
         <Header
           leftComponent={{
             icon: 'arrow-back',
@@ -94,45 +93,65 @@ const PackageDetail: React.FC = () => {
           containerStyle={{ backgroundColor: '#f2f2f2' }}
         />
         {packageDetail && (
-          <>
+          <Animatable.View animation="fadeInUp" duration={1000} style={styles.packageContainer}>
             <Image source={{ uri: packageDetail.products[0]?.product.productImage }} style={styles.image} />
             <Text style={styles.packageName}>{packageDetail.products[0]?.product.name || 'Package'}</Text>
             <Text style={styles.totalPriceDiscount}>
               {packageDetail.totalPriceDiscount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
             </Text>
-            <Text style={styles.productCount}>Quantity Product: {packageDetail.products.length}</Text>
+            <Text style={styles.productCount}>Product Quantity: {packageDetail.products.length}</Text>
+            {/* <Text style={styles.typeOfDelivery}>Type Of Delivery: {packageDetail.typeOfDelivery}</Text> */}
+            <Text style={styles.numberOfShipment}>Number of deliveries: {packageDetail.numberOfShipment}</Text>
+            <Text style={styles.discount}>Discount: {packageDetail.discount * 100}%</Text>
             <Divider style={styles.divider} />
 
             {packageDetail.products.map((item) => (
-              <View key={item.product._id} style={styles.productRow}>
+              <Animatable.View
+                animation="fadeInUp"
+                duration={1500}
+                key={item.product._id}
+                style={styles.productRow}
+                onTouchEnd={() => handleProductPress(item.product)}
+              >
                 <Image source={{ uri: item.product.productImage }} style={styles.productImage} />
                 <View style={styles.productDetails}>
                   <Text style={styles.productName}>{item.product.name}</Text>
                   <Text style={styles.productDescription}>{item.product.description}</Text>
-                  <Text style={styles.productBrand}>Brand: {item.product.brandID.name}</Text>
-                  <Text style={styles.productQuantity}>Quantity: {item.quantity}</Text>
+                  <Text style={styles.productBrand}>Thương hiệu: {item.product.brandID.name}</Text>
+                  <Text style={styles.productQuantity}>Số lượng: {item.quantity}</Text>
                 </View>
                 <Divider />
-              </View>
+              </Animatable.View>
             ))}
-          </>
+          </Animatable.View>
         )}
 
-        <View style={styles.buttonContainer}>
-          {/* <TouchableOpacity
-            style={[styles.cartIconContainer, styles.iconButton, { backgroundColor: 'green' }]}
-            onPress={handleAddToCart}
-          >
-            <Icon name="shopping-cart" size={24} color="#FFF" />
-          </TouchableOpacity> */}
+        <Animatable.View animation="fadeInUp" duration={2000} style={styles.buttonContainer}>
           <TouchableOpacity
             style={[styles.orderButton, { backgroundColor: '#47CEFF' }]}
             onPress={() => navigation.navigate('OrderForm')}
           >
             <Text style={styles.orderButtonText}>Order</Text>
           </TouchableOpacity>
-        </View>
-      </ScrollView>
+        </Animatable.View>
+
+        {selectedProduct && (
+          <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={closeModal}>
+            <View style={styles.modalView}>
+              <Text style={styles.modalTitle}>{selectedProduct.name}</Text>
+              <Image source={{ uri: selectedProduct.productImage }} style={styles.modalImage} />
+              <Text style={styles.modalDescription}>{selectedProduct.description}</Text>
+              <Text style={styles.modalBrand}>Thương hiệu: {selectedProduct.brandID.name}</Text>
+              <Text style={styles.modalPrice}>
+                Giá: {selectedProduct.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+              </Text>
+              <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+                <Text style={styles.closeButtonText}>Đóng</Text>
+              </TouchableOpacity>
+            </View>
+          </Modal>
+        )}
+      </Animated.ScrollView>
     </GestureHandlerRootView>
   );
 };
@@ -146,6 +165,16 @@ const styles = StyleSheet.create({
     paddingRight: 16,
     paddingLeft: 16,
     paddingBottom: 16,
+  },
+  packageContainer: {
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5,
   },
   centered: {
     flex: 1,
@@ -174,7 +203,22 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 10,
     textAlign: 'center',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+  },
+  typeOfDelivery: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  numberOfShipment: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  discount: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 10,
   },
   divider: {
     backgroundColor: '#ccc',
@@ -212,33 +256,67 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  iconButton: {
-    padding: 10,
-    borderRadius: 50,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cartIconContainer: {
-    width: 60,
-    height: 60,
+    marginVertical: 20,
   },
   orderButton: {
-    flex: 1,
-    marginLeft: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 15,
+    borderRadius: 30,
+    width: '80%',
   },
   orderButtonText: {
     fontSize: 18,
-    color: '#FFF',
+    color: 'white',
+    textAlign: 'center',
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 24,
     fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalImage: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'contain',
+    marginBottom: 20,
+  },
+  modalDescription: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  modalBrand: {
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  modalPrice: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  closeButton: {
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: '#FF6F61',
+  },
+  closeButtonText: {
+    fontSize: 16,
+    color: 'white',
+    textAlign: 'center',
   },
 });
 
-export default withRefreshControl(PackageDetail);
+export default PackageDetail;

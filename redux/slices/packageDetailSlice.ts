@@ -19,7 +19,9 @@ interface Product {
 interface PackageDetail {
   _id: string;
   products: { product: Product; quantity: number }[];
-  totalAmount: number;
+  typeOfDelivery: string;
+  numberOfShipment: number;
+  discount: number;
   totalPriceDiscount: number;
 }
 

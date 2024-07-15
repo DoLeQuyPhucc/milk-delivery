@@ -55,6 +55,7 @@
     "react-content-loader": "^7.0.2",
     "react-dom": "18.2.0",
     "react-native": "0.74.3",
+    "react-native-animatable": "^1.4.0",
     "react-native-date-picker": "^5.0.4",
     "react-native-dotenv": "^3.4.11",
     "react-native-elements": "^3.4.3",

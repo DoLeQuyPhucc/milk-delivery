@@ -1,8 +1,8 @@
-import { getToken } from "@/utils/tokenHelpers";
+import { useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios, { AxiosInstance } from "axios";
-import { useEffect } from "react";
 import { API_HOST } from "@env";
+import { getToken } from "@/utils/tokenHelpers";
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: `${API_HOST}`,
@@ -11,7 +11,6 @@ const axiosInstance: AxiosInstance = axios.create({
   },
 });
 
-// Function to refresh the token
 const refreshAccessToken = async () => {
   try {
     const refreshToken = await getToken("refreshToken");
@@ -19,7 +18,7 @@ const refreshAccessToken = async () => {
 
     if (!refreshToken) {
       console.log("No refresh token available, skipping token refresh.");
-      return null; // Return null if no refresh token
+      return null;
     }
 
     const response = await axios.post(`${API_HOST}/api/auth/refreshtoken`, {
@@ -34,7 +33,6 @@ const refreshAccessToken = async () => {
   }
 };
 
-// Set up request interceptor
 axiosInstance.interceptors.request.use(
   async (config) => {
     const token = await getToken("accessToken");
@@ -69,10 +67,8 @@ axiosInstance.interceptors.response.use(
         console.error("Failed to refresh access token:", refreshError);
       }
     } else if (error.response.status === 401) {
-      // Handle unauthorized access (e.g., redirect to login page)
       await AsyncStorage.removeItem("accessToken");
       await AsyncStorage.removeItem("refreshToken");
-      // Redirect to login page or show a login prompt
     }
 
     return Promise.reject(error);
@@ -96,7 +92,6 @@ export const callApi = async (
   }
 };
 
-// Custom hook to encapsulate Axios logic
 export const useAxios = () => {
   useEffect(() => {
     const interceptor = axiosInstance.interceptors.response.use(
@@ -109,7 +104,7 @@ export const useAxios = () => {
           try {
             const newAccessToken = await refreshAccessToken();
             if (!newAccessToken) {
-              return Promise.reject(error); // If no new access token, reject error
+              return Promise.reject(error);
             }
             axios.defaults.headers.common[
               "Authorization"
@@ -117,7 +112,6 @@ export const useAxios = () => {
             return axiosInstance(originalRequest);
           } catch (refreshError) {
             console.error("Failed to refresh access token:", refreshError);
-            // Optionally handle logout or redirection to login page
           }
         }
 
@@ -130,7 +124,5 @@ export const useAxios = () => {
     };
   }, []);
 
-  return {
-    callApi,
-  };
+  return { callApi };
 };
