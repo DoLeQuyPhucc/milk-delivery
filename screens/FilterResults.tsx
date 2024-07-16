@@ -6,6 +6,7 @@ import { RootState, AppDispatch } from '@/redux/store/store';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { Appbar } from 'react-native-paper';
 
 // Define interface for package item
 interface PackageItem {
@@ -88,6 +89,10 @@ const FilterResults: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      <Appbar.Header style={{ backgroundColor: 'transparent' }}>
+        <Appbar.BackAction onPress={() => navigation.goBack()} />
+        <Appbar.Content title="Check out" />
+      </Appbar.Header>
       <Text style={styles.brandNameText}>{`Brand: ${brandName}`}</Text>
       {status === 'loading' ? (
         <View style={styles.loadingContainer}>

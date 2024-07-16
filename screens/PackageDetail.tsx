@@ -12,6 +12,7 @@ import withRefreshControl from '@/components/withRefreshControl';
 import { useNavigation } from '@/hooks/useNavigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Animatable from 'react-native-animatable';
+import { Appbar } from 'react-native-paper';
 
 const PackageDetail: React.FC = () => {
   const route = useRoute();
@@ -80,18 +81,10 @@ const PackageDetail: React.FC = () => {
         onScrollBeginDrag={handleScroll}
         onScrollEndDrag={handleScroll}
       >
-        <Header
-          leftComponent={{
-            icon: 'arrow-back',
-            color: 'black',
-            onPress: () => navigation.goBack(),
-          }}
-          rightComponent={{
-            icon: 'notifications',
-            color: 'black',
-          }}
-          containerStyle={{ backgroundColor: '#f2f2f2' }}
-        />
+        <Appbar.Header style={{ backgroundColor: 'transparent' }}>
+          <Appbar.BackAction onPress={() => navigation.goBack()} />
+          <Appbar.Content title="Package Detail" />
+        </Appbar.Header>
         {packageDetail && (
           <Animatable.View animation="fadeInUp" duration={1000} style={styles.packageContainer}>
             <Image source={{ uri: packageDetail.products[0]?.product.productImage }} style={styles.image} />

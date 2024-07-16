@@ -16,6 +16,8 @@ const OrderDetailScreen = ({ route, navigation }: any) => {
   const order = useSelector((state: RootState) => 
     state.orders.orders.find(order => order._id === orderId)
   );
+
+  const userID = useSelector((state: RootState) => state.user._id);
   
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedTrackingId, setSelectedTrackingId] = useState<string | null>(null);
@@ -45,7 +47,7 @@ const OrderDetailScreen = ({ route, navigation }: any) => {
         newDeliveredAt: date.toISOString().split('T')[0],
       });
       console.log('Update Delivery Date Response:', response);
-      dispatch(fetchOrders(order._id));
+      dispatch(fetchOrders(userID));
       navigation.goBack();
     } catch (error: any) {
       Alert.alert('Error', 'Failed to update delivery date');
@@ -61,7 +63,7 @@ const OrderDetailScreen = ({ route, navigation }: any) => {
     try {
       const response = await callApi("PUT", `/api/orders/${orderId}/cancel`);
       console.log('Cancel Order Response:', response);
-      dispatch(fetchOrders(order._id));
+      dispatch(fetchOrders(userID));
       navigation.goBack();
     } catch (error: any) {
       Alert.alert('Error', 'Failed to cancel order');

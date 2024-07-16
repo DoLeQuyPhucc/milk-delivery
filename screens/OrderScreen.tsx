@@ -23,7 +23,7 @@ const OrderScreen: React.FC = () => {
   );
 
   return (
-    <Tab.Navigator>
+    <Tab.Navigator style={styles.topTab}>
       <Tab.Screen name="Pending" children={() => <OrderList status="Pending" />} />
       <Tab.Screen name="Out for Delivery" children={() => <OrderList status="Out for Delivery" />} />
       <Tab.Screen name="Delivered" children={() => <OrderList status="Delivered" />} />
@@ -86,6 +86,10 @@ const OrderList = ({ status }: { status: string }) => {
     return <Text>Error: {error}</Text>;
   }
 
+  if (orders.length === 0) {
+    return <Text style={styles.noOrdersText}>There are no orders</Text>;
+  }
+
   return (
     <FlatList
       data={orders}
@@ -121,6 +125,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 2,
+  },
+  topTab: {
+    marginTop: 50,
   },
   orderHeader: {
     flexDirection: 'row',
@@ -199,6 +206,12 @@ const styles = StyleSheet.create({
   deliveryCount: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  noOrdersText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: 'gray',
   },
 });
 
